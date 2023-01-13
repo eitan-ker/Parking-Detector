@@ -4,9 +4,7 @@ import pickle
 from shapely.geometry import Point, Polygon
 from tracker import *
 import threading
-from parking_model import lock_posList
-
-
+# from parking_model import lock_posList
 
 # MAYBE need to reArrange the point by (point1,point2,point3,point4) = (upper_left, upper_right,
 # bottom_right, bottom_left)
@@ -16,9 +14,9 @@ from parking_model import lock_posList
 # *****
 
 
-cap = cv2.VideoCapture('http://eitancamhome:eitancamhome@10.100.102.10:6677/video')
+# cap = cv2.VideoCapture('http://eitancamhome:eitancamhome@10.100.102.10:6677/video')
+cap = cv2.VideoCapture('resultvideo.avi')
 # cap = cv2.VideoCapture('resultvideoday.avi')
-# cap = cv2.VideoCapture('resultvideoday2.avi')
 # cap = cv2.VideoCapture('resultvideomid.avi')
 
 
@@ -36,12 +34,14 @@ except:
     parkingAreas = []
 
 # lock
-with lock_posList:
-    try:
-        with open('parkingPositions', 'rb') as f:
-            parkingPositions = pickle.load(f)
-    except:
-        parkingPositions = []
+# with lock_posList:
+try:
+    with open('parkingPositions', 'rb') as f:
+        parkingPositions = pickle.load(f)
+except:
+    parkingPositions = []
+
+
 # ********
 # End Init
 # ********
@@ -107,6 +107,7 @@ def deleteByClick(events, x, y, flags, params):
             if point.within(polyg):
                 parkingPositions.pop(i)
 
+
 # ****************************
 # end marking Area functions
 # ****************************
@@ -126,7 +127,6 @@ def addPotentialParkingPositions(x, y, w, h, potentialParkingPositions):
             potentialParkingPositions.append([x, y, w, h])
 
 
-
 # Draw on main window all Parking areas
 def drawParkingAreas(img):
     for pos in parkingAreas:
@@ -138,24 +138,19 @@ def drawParkingAreas(img):
 # Draw Parking Positions
 def drawParkingPositions(img):
     for pos in parkingPositions:
-        cv2.rectangle(img, (pos[0], pos[1]), (pos[0]+pos[2], pos[1]+pos[3]), (0, 191, 255), 2)
-
-
+        cv2.rectangle(img, (pos[0], pos[1]), (pos[0] + pos[2], pos[1] + pos[3]), (0, 191, 255), 2)
 
 
 # Parking positions detection algorithm
 def detectionAlgorithm():
-    print("hi")
-
     while True:
         ret, frame = cap.read()
         view_frame = frame.copy()
 
         potentialParkingPositions = []
 
-        imgBlur = cv2.GaussianBlur(frame, (51, 51), 1)
+        imgBlur = cv2.GaussianBlur(frame, (51, 51), 2)
         imgGray = cv2.cvtColor(imgBlur, cv2.COLOR_BGR2GRAY)
-        imgGray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         mask = object_detector.apply(imgGray)
         _, mask = cv2.threshold(mask, 100, 255, cv2.THRESH_BINARY)
         kernel = np.ones((3, 3), np.uint8)
@@ -179,7 +174,6 @@ def detectionAlgorithm():
                 cv2.rectangle(view_frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
                 cv2.putText(view_frame, str(area), (x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2, cv2.LINE_AA)
 
-
         # tracker update and get optimal
         # from class tracker:
         # update
@@ -192,14 +186,14 @@ def detectionAlgorithm():
                 parkingPositions.append(pos)
 
         # lock
-        with lock_posList:
-            with open('parkingPositions', 'wb') as f:
-                pickle.dump(parkingPositions, f)
+        # with lock_posList:
+        with open('parkingPositions', 'wb') as f:
+            pickle.dump(parkingPositions, f)
 
         # cv2.imshow("original", frame)
         cv2.imshow("marked", view_frame)
         # cv2.imshow("masked", mask)
-        # cv2.imshow("imgDilate", imgDilate)
+        cv2.imshow("imgDilate", imgDilate)
         # cv2.imshow("edges", edges)
 
         cv2.setMouseCallback("marked", deleteByClick)
@@ -209,3 +203,6 @@ def detectionAlgorithm():
             markParkingArea(frame)
         if key == ord('q'):
             break
+
+
+detectionAlgorithm()
