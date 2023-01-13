@@ -1,0 +1,18 @@
+body {
+    margin-top:80px;
+    text-align: center;
+    background-size: cover;
+    background-image: url("../img/4.jfif");
+    color:white;
+    font-size:26px;
+    font-weight: bold;
+    text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
+}
+
+.info {
+    height: 80px;
+}
+
+.video {
+    border: 2px solid white;
+}

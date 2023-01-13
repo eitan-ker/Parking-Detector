@@ -1,0 +1,15 @@
+<html>
+  <head>
+    <title>Parking Surveillance</title>
+   <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">  </head>
+  <body>
+    <h1>Parking Surveillance</h1>
+
+    <div class="info">
+      <iframe src="{{ url_for('info') }}" style="border: none;"></iframe>
+    </div>
+
+    <img class="video" src="{{ url_for('video_feed') }}">
+
+  </body>
+</html>
