@@ -21,18 +21,22 @@ lock_posList = threading.Lock()
 
 
 # cap = cv2.VideoCapture('parkinglot1.mp4')
-# cap = cv2.VideoCapture('resultvideoday.avi')
-cap = cv2.VideoCapture('http://eitancamhome:eitancamhome@10.100.102.10:6677/video')
+# cap = cv2.VideoCapture('resultvideoday1.avi')
+cap = cv2.VideoCapture('resultvideoday3.avi')
+# cap = cv2.VideoCapture('resultvideoday2.avi')
+# cap = cv2.VideoCapture('resultvideomid.avi')
+# cap = cv2.VideoCapture('http://eitancamhome:eitancamhome@10.100.102.10:6677/video')
 
 
 time.sleep(2.0)
-free_spaces = 0
-pixel_min = 120
+freeSpaces = 0
+totalSpaces = 0
+pixel_min = 80
 
 # lock
 with lock_posList:
     try:
-        with open('parkingPositions', 'rb') as f:
+        with open('parkingPositions3', 'rb') as f:
             poslist = pickle.load(f)
     except:
         poslist = []
@@ -83,7 +87,7 @@ def optimalFreePositions(i, freeParkingPostiions, l, dp):
 
 
 def checkParkingSpace(imgPro, frame, poslist):
-    global free_spaces
+    global freeSpace, totalSpaces
     freeSpace = 0
 
     # create modified posList
@@ -95,25 +99,29 @@ def checkParkingSpace(imgPro, frame, poslist):
     for pos in poslist:
         imgCrop = imgPro[pos[1]:pos[1] + pos[3], pos[0]:pos[0] + pos[2]]
         count = cv2.countNonZero(imgCrop)
-        countpixelsList.append([pos[0],pos[1],pos[2],pos[3],count])
+        area = pos[2] * pos[3]
+        countpixelsList.append([pos[0],pos[1],pos[2],pos[3],count, area])
     # sort by pixel count index
-    countpixelsList.sort(key=lambda countpixelsList: countpixelsList[4])
+    # countpixelsList.sort(key=lambda countpixelsList: countpixelsList[4])
+    countpixelsList = sorted(countpixelsList, key=lambda x: (-x[4], x[5]))
+
     # add relevant positions
-    for i in range(len(countpixelsList), 0, -1):
-        if intersecting(countpixelsList[i-1], parkingPositionList):
+    for i in range(len(countpixelsList)):
+        if intersecting(countpixelsList[i], parkingPositionList):
             continue
-        elif countpixelsList[i-1][4] < pixel_min:
+        elif countpixelsList[i][4] < pixel_min:
             # append to list of free spaces to later run algorithm to find optimal free positions and
             # append to parkingPositionList
-            freeParkingPostiions.append(countpixelsList[i-1])
+            freeParkingPostiions.append(countpixelsList[i])
         else:
-            parkingPositionList.append(countpixelsList[i-1])
+            parkingPositionList.append(countpixelsList[i])
     dp = [[-1,None]]*len(freeParkingPostiions)
     # run dynamic programming algorithm to choose the rest of parking positions into posList
     numOfFreeSpaces, freeSpacePositions = optimalFreePositions(0, freeParkingPostiions, [], dp)
     for pos in freeSpacePositions:
         parkingPositionList.append(pos)
 
+    totalSpaces = len(parkingPositionList)
 
     # mark frame
     for pos in parkingPositionList:
@@ -138,10 +146,13 @@ def checkParkingSpace(imgPro, frame, poslist):
     # cvzone.putTextRect(frame,  f'Free: {freeSpace}', (1500, 100), scale=4, thickness=3, offset=0, colorR=(255,0,0))
     free_spaces = freeSpace
 
-def get_free_spaces():
-    global free_spaces
-    return free_spaces
+def getFreeSpaces():
+    global freeSpaces
+    return freeSpaces
 
+def getTotalSpaces():
+    global totalSpaces
+    return totalSpaces
 
 
 # brighten the img. Was taken from:
@@ -170,9 +181,12 @@ def proccess_frame(frame, poslist):
     # process img for testing in parking model
     imgGray = cv2.cvtColor(no_shadow, cv2.COLOR_BGR2GRAY)
     imgBlur = cv2.GaussianBlur(imgGray, (25, 25), 1)
-    kernel = np.ones((7, 7), np.uint8)
+    kernel = np.ones((3, 3), np.uint8)
     imgDilate = cv2.dilate(imgBlur, kernel, iterations=1)
     imgThreshold = cv2.adaptiveThreshold(imgDilate, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 21, 16)
+
+    cv2.imshow("imgThreshold", imgThreshold)
+
 
     checkParkingSpace(imgThreshold, frame, poslist)
 
@@ -196,7 +210,7 @@ def stream():
         success, frame = cap.read()
         if success:
             proccess_frame(frame, poslist)
-            frame = cv2.resize(frame, (1500, 850))
+            # frame = cv2.resize(frame, (1500, 850))
             with lock:
                 outputFrame = frame.copy()
 

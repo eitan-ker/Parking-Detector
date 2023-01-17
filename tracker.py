@@ -14,6 +14,8 @@ class Tracker:
         self.notMoving = {}  # id:(noMoveIterationCounter)
         self.optimalParkingPosition = {}  # id:[(x1,y1,w1,h1),(x2,y2,w2,h2)]
         self.id_count = 0
+        # this will deal with unwanted partings caused by shadows for example
+        # id:legit - if id detected += 1, if detected > 2 then assign values in detected
 
     # will save the largest parking in the first half and second half.
     # this is order to deal with getting out / getting in parking situations.
@@ -62,7 +64,7 @@ class Tracker:
                 dist = math.hypot(cx - pt[0], cy - pt[1])
 
                 # same object detected
-                if dist < 25:
+                if dist < 50:
                     self.assignValues(id, x, y, w, h, cx, cy, ids_detected)
                     same_object_detected = True
                     break
@@ -90,8 +92,11 @@ class Tracker:
         for id, pt in tempOptimalParkingPosition.items():
             if len(pt) == 0:
                 continue
-            optimalParkingPosition.append(pt[0])
-            optimalParkingPosition.append(pt[1])
+            for p in pt:
+                if p is not None:
+                    optimalParkingPosition.append(p)
+            # optimalParkingPosition.append(pt[0])
+            # optimalParkingPosition.append(pt[1])
             # once added the optimalParkingPosition, delete the ID obj from all attributes
             self.center_points.pop(id)
             self.positions.pop(id)

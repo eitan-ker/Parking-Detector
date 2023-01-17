@@ -1,15 +1,24 @@
 <html>
   <head>
     <title>Parking Surveillance</title>
-   <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">  </head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+  </head>
   <body>
-    <h1>Parking Surveillance</h1>
 
-    <div class="info">
-      <iframe src="{{ url_for('info') }}" style="border: none;"></iframe>
+    <h1>Parking Surveillance</h1>
+    <div class="row">
+      <div class="column video_col">
+        <img class="video" src="{{ url_for('video_feed') }}">
+      </div>
+      <div class="column info_col">
+
+        <h3>Free Spaces Available</h3>
+        <iframe src="{{ url_for('info') }}" style="border: none;"></iframe>
+      </div>
     </div>
 
-    <img class="video" src="{{ url_for('video_feed') }}">
+
 
   </body>
 </html>

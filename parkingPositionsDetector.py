@@ -4,7 +4,7 @@ import pickle
 from shapely.geometry import Point, Polygon
 from tracker import *
 import threading
-# from parking_model import lock_posList
+from parking_model import lock_posList
 
 # MAYBE need to reArrange the point by (point1,point2,point3,point4) = (upper_left, upper_right,
 # bottom_right, bottom_left)
@@ -15,8 +15,9 @@ import threading
 
 
 # cap = cv2.VideoCapture('http://eitancamhome:eitancamhome@10.100.102.10:6677/video')
-cap = cv2.VideoCapture('resultvideo.avi')
-# cap = cv2.VideoCapture('resultvideoday.avi')
+# cap = cv2.VideoCapture('resultvideoday1.avi')
+cap = cv2.VideoCapture('resultvideoday3.avi')
+# cap = cv2.VideoCapture('resultvideoday2.avi')
 # cap = cv2.VideoCapture('resultvideomid.avi')
 
 
@@ -34,12 +35,12 @@ except:
     parkingAreas = []
 
 # lock
-# with lock_posList:
-try:
-    with open('parkingPositions', 'rb') as f:
-        parkingPositions = pickle.load(f)
-except:
-    parkingPositions = []
+with lock_posList:
+    try:
+        with open('parkingPositions3', 'rb') as f:
+            parkingPositions = pickle.load(f)
+    except:
+        parkingPositions = []
 
 
 # ********
@@ -153,8 +154,8 @@ def detectionAlgorithm():
         imgGray = cv2.cvtColor(imgBlur, cv2.COLOR_BGR2GRAY)
         mask = object_detector.apply(imgGray)
         _, mask = cv2.threshold(mask, 100, 255, cv2.THRESH_BINARY)
-        kernel = np.ones((3, 3), np.uint8)
-        imgDilate = cv2.dilate(mask, kernel, iterations=1)
+        kernel = np.ones((5, 5), np.uint8)
+        imgDilate = cv2.dilate(mask, kernel, iterations=2)
 
         edges = cv2.Canny(frame, 200, 200)
 
@@ -165,10 +166,7 @@ def detectionAlgorithm():
         for cnt in contours:
             area = cv2.contourArea(cnt)
             (x, y, w, h) = cv2.boundingRect(cnt)
-            if area > 1000:
-                # track all the object in the frame
-                # if the object is coming from outside of parking area - into parking area
-                # then append it to potentialParkingPositions
+            if area > 2000:
                 addPotentialParkingPositions(x, y, w, h, potentialParkingPositions)
 
                 cv2.rectangle(view_frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
@@ -186,9 +184,9 @@ def detectionAlgorithm():
                 parkingPositions.append(pos)
 
         # lock
-        # with lock_posList:
-        with open('parkingPositions', 'wb') as f:
-            pickle.dump(parkingPositions, f)
+        with lock_posList:
+            with open('parkingPositions', 'wb') as f:
+                pickle.dump(parkingPositions, f)
 
         # cv2.imshow("original", frame)
         cv2.imshow("marked", view_frame)
@@ -203,6 +201,3 @@ def detectionAlgorithm():
             markParkingArea(frame)
         if key == ord('q'):
             break
-
-
-detectionAlgorithm()
