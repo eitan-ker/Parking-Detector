@@ -26,14 +26,15 @@ def info():
     return render_template('/HTML/info.html', freeSpaces=freeSpaces, totalSpaces=totalSpaces)
 
 if __name__ == "__main__":
-    stream = 'resultvideoday3.avi'
-    parkingPositionsPath = 'parkingPositions3'
+    stream = 'resultvideo2013.avi'
+    # stream = 'http://eitancamhome:eitancamhome@10.100.102.10:6677/video'
+    parkingPositionsPath = 'parkingPositionsFinal_badParkingArea'
     model = parking_model.Model(stream, parkingPositionsPath)
     t1 = threading.Thread(target=model.stream)
     t1.daemon = True
     t1.start()
 
-    parkingAreaPath = 'parkingAreasPos'
+    parkingAreaPath = 'parkingAreasPos_badParkingArea'
     lock_posList = model.getLockPosList()
     detector = parkingPositionsDetector.Detector(stream, parkingPositionsPath, parkingAreaPath, lock_posList)
     t2 = threading.Thread(target=detector.detectionAlgorithm)

@@ -95,7 +95,7 @@ class Detector:
         self.__parkingAreas.append(self.__parkingArea)
         with open('parkingAreasPos', 'wb') as f:
             pickle.dump(self.__parkingAreas, f)
-        parkingArea = []
+        self.__parkingArea = []
 
 
     # Delete using mouse:
@@ -179,7 +179,7 @@ class Detector:
             for cnt in contours:
                 area = cv2.contourArea(cnt)
                 (x, y, w, h) = cv2.boundingRect(cnt)
-                if area > 2000:
+                if area > 1400:
                     self.__addPotentialParkingPositions(x, y, w, h, potentialParkingPositions)
 
                     cv2.rectangle(view_frame, (x, y), (x + w, y + h), (0, 255, 0), 2)

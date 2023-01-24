@@ -75,16 +75,23 @@ class Model:
             area = pos[2] * pos[3]
             countpixelsList.append([pos[0],pos[1],pos[2],pos[3],count, area])
 
-    def __relevantPositions(self, countpixelsList, parkingPositionList, freeParkingPostiions):
+    def __relevantPositions(self, countpixelsList, occupiedPositions, freeParkingPostiions):
         for i in range(len(countpixelsList)):
-            if self.__intersecting(countpixelsList[i], parkingPositionList):
-                continue
-            elif countpixelsList[i][4] < self.__pixel_min:
+            # if self.__intersecting(countpixelsList[i], occupiedPositions) or \
+            #         self.__intersecting(countpixelsList[i], freeParkingPostiions):
+            #     continue
+            # elif countpixelsList[i][4] < self.__pixel_min:
+            #     # append to list of free spaces to later run algorithm to find optimal free positions and
+            #     # append to parkingPositionList
+            #     freeParkingPostiions.append(countpixelsList[i])
+            # else:
+            #     occupiedPositions.append(countpixelsList[i])
+            if countpixelsList[i][4] < self.__pixel_min:
                 # append to list of free spaces to later run algorithm to find optimal free positions and
                 # append to parkingPositionList
                 freeParkingPostiions.append(countpixelsList[i])
             else:
-                parkingPositionList.append(countpixelsList[i])
+                occupiedPositions.append(countpixelsList[i])
 
     def __markFrames(self, parkingPositionList, imgPro, frame):
         for pos in parkingPositionList:
@@ -113,6 +120,7 @@ class Model:
         # create modified posList
         # choose spaces that are occupied
         parkingPositionList = []
+        occupiedPositions = []
         freeParkingPostiions = []
         countpixelsList = []
         # add pixel count to positions
@@ -121,11 +129,24 @@ class Model:
         # sort by pixel count index
         countpixelsList = sorted(countpixelsList, key=lambda x: (-x[4], x[5]))
 
-        # add relevant positions
-        self.__relevantPositions(countpixelsList, parkingPositionList, freeParkingPostiions)
-        # run dynamic programming algorithm to choose the rest of parking positions into posList
-        dp = [[-1,None]]*len(freeParkingPostiions)
-        numOfFreeSpaces, freeSpacePositions = self.__optimalFreePositions(0, freeParkingPostiions, [], dp)
+
+        # ****************************************Delete*************************************************************
+        # # add relevant positions
+        # self.__relevantPositions(countpixelsList, occupiedPositions, freeParkingPostiions)
+        # # run dynamic programming algorithm to choose max occupied parkings
+        # dp_occ = [[-1, None]] * len(occupiedPositions)
+        # numOfoccupiedSpaces, occupiedSpacePositions = self.__optimalFreePositions(0, occupiedPositions, [], dp_occ)
+        # for pos in occupiedSpacePositions:
+        #     parkingPositionList.append(pos)
+        # ****************************************Delete*************************************************************
+
+        # choose occupied positions from yolov5 model
+        # choose the not intersecting (with occupied positions from yolov5 model) free parking positions
+        # from pixelCountArea
+
+        # run dynamic programming algorithm to choose max free parkings
+        dp_free = [[-1, None]] * len(freeParkingPostiions)
+        numOfFreeSpaces, freeSpacePositions = self.__optimalFreePositions(0, freeParkingPostiions, [], dp_free)
         for pos in freeSpacePositions:
             parkingPositionList.append(pos)
 
