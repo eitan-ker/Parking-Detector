@@ -3,40 +3,6 @@ import numpy as np
 import pickle
 from shapely.geometry import Point, Polygon
 from tracker import *
-import threading
-# from parking_model import lock_posList
-
-# MAYBE need to reArrange the point by (point1,point2,point3,point4) = (upper_left, upper_right,
-# bottom_right, bottom_left)
-
-
-# # cap = cv2.VideoCapture('http://eitancamhome:eitancamhome@10.100.102.10:6677/video')
-# # cap = cv2.VideoCapture('resultvideoday1.avi')
-# cap = cv2.VideoCapture('resultvideoday3.avi')
-# # cap = cv2.VideoCapture('resultvideoday2.avi')
-# # cap = cv2.VideoCapture('resultvideomid.avi')
-#
-#
-# # Defined as (point1,point2,point3,point4) = (upper_left, upper_right, bottom_right, bottom_left). point = (width,height)
-# parkingArea = []
-# # Create moving tracker object
-# object_detector = cv2.createBackgroundSubtractorKNN()
-# # Create tracker object for parkingPositions
-# tracker = Tracker()
-#
-# try:
-#     with open('parkingAreasPos', 'rb') as f:
-#         parkingAreas = pickle.load(f)
-# except:
-#     parkingAreas = []
-#
-# # lock
-# with lock_posList:
-#     try:
-#         with open('parkingPositions3', 'rb') as f:
-#             parkingPositions = pickle.load(f)
-#     except:
-#         parkingPositions = []
 
 
 class Detector:
@@ -170,7 +136,6 @@ class Detector:
             kernel = np.ones((5, 5), np.uint8)
             imgDilate = cv2.dilate(mask, kernel, iterations=2)
 
-            edges = cv2.Canny(frame, 200, 200)
 
             self.__drawParkingPositions(view_frame)
             self.__drawParkingAreas(view_frame)
@@ -201,13 +166,10 @@ class Detector:
                 with open('parkingPositions', 'wb') as f:
                     pickle.dump(self.__parkingPositions, f)
 
-            # cv2.imshow("original", frame)
-            cv2.imshow("marked", view_frame)
-            # cv2.imshow("masked", mask)
-            cv2.imshow("imgDilate", imgDilate)
-            # cv2.imshow("edges", edges)
-
-            cv2.setMouseCallback("marked", self.__deleteByClick)
+            # cv2.imshow("marked", view_frame)
+            # cv2.imshow("imgDilate", imgDilate)
+            #
+            # cv2.setMouseCallback("marked", self.__deleteByClick)
 
             key = cv2.waitKey(1)
             if key == ord('p'):

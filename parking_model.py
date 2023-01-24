@@ -1,14 +1,14 @@
 import cv2
 import pickle
-import cvzone
-import numpy as np
-import time
 import threading
 from shapely.geometry import Point, Polygon
+import torch.hub
+import pandas
 
 
 class Model:
-    def __init__(self, stream, parkingPositionsPath):
+    def __init__(self, stream, parkingPositionsPath, parkingAreaPath, weights):
+        self.__model = torch.hub.load('ultralytics/yolov5', weights, pretrained=True)
         self.__outputFrame = None
         self.__lock = threading.Lock()
         self.__lock_posList = threading.Lock()
@@ -23,6 +23,11 @@ class Model:
                     self.__poslist = pickle.load(f)
             except:
                 self.__poslist = []
+        try:
+            with open(parkingAreaPath, 'rb') as f:
+                self.__parkingAreas = pickle.load(f)
+        except:
+            self.__parkingAreas = []
 
 
     def __intersecting(self, position, positionList):
@@ -31,16 +36,14 @@ class Model:
         x, y, w, h = position[0], position[1], position[2], position[3]
         for pos in positionList:
             px, py, pw, ph = pos[0], pos[1], pos[2], pos[3]
-            # first square
-            # checking left upper corner
-            if ((px <= x <= px + pw) and (py <= y <= py + ph) or (px <= x <= px + pw) and (py <= y + h <= py + ph) or
-                    (px <= x + w <= px + pw) and (py <= y + h <= py + ph) or (px <= x <= px + pw) and (py <= y <= py + ph)):
-                return True
-            # second square
-            if ((x <= px <= x + w) and (y <= py <= y + h) or (x <= px <= x + w) and (y <= py + ph <= y + h) or
-                    (x <= px + pw <= x + w) and (y <= py + ph <= y + h) or (x <= px <= x + w) and (y <= py <= y + h)):
-                return True
-        return False
+
+            # If one rectangle is on left side of other
+            if x > px + pw or px > x + w:
+                continue
+            # If one rectangle is above other
+            if y > py + ph or py > y + h:
+                continue
+            return True
 
 
     def __optimalFreePositions(self, i, freeParkingPostiions, l, dp):
@@ -73,50 +76,66 @@ class Model:
             imgCrop = imgPro[pos[1]:pos[1] + pos[3], pos[0]:pos[0] + pos[2]]
             count = cv2.countNonZero(imgCrop)
             area = pos[2] * pos[3]
-            countpixelsList.append([pos[0],pos[1],pos[2],pos[3],count, area])
+            countpixelsList.append([pos[0], pos[1], pos[2], pos[3], count, area])
 
-    def __relevantPositions(self, countpixelsList, occupiedPositions, freeParkingPostiions):
+
+    def __relevantFreePositions(self, countpixelsList, parkingPositionList, freeParkingPostiions):
         for i in range(len(countpixelsList)):
-            # if self.__intersecting(countpixelsList[i], occupiedPositions) or \
-            #         self.__intersecting(countpixelsList[i], freeParkingPostiions):
-            #     continue
-            # elif countpixelsList[i][4] < self.__pixel_min:
-            #     # append to list of free spaces to later run algorithm to find optimal free positions and
-            #     # append to parkingPositionList
-            #     freeParkingPostiions.append(countpixelsList[i])
-            # else:
-            #     occupiedPositions.append(countpixelsList[i])
-            if countpixelsList[i][4] < self.__pixel_min:
-                # append to list of free spaces to later run algorithm to find optimal free positions and
-                # append to parkingPositionList
-                freeParkingPostiions.append(countpixelsList[i])
+            if self.__intersecting(countpixelsList[i], parkingPositionList):
+                continue
             else:
-                occupiedPositions.append(countpixelsList[i])
+                freeParkingPostiions.append(countpixelsList[i])
+
+    def __getOccupiedPositions(self, occupied, occupiedPositions):
+        for index, row in occupied.pandas().xyxy[0].iterrows():
+            x1 = int(row['xmin'])
+            y1 = int(row['ymin'])
+            xn = int(row['xmax'])
+            yn = int(row['ymax'])
+            occupiedPositions.append((x1, y1, xn-x1, yn-y1, 1))
+
 
     def __markFrames(self, parkingPositionList, imgPro, frame):
+        freeSpaces = 0
         for pos in parkingPositionList:
             x,y = pos[0], pos[1]
 
             imgCrop = imgPro[pos[1]:pos[1]+pos[3], pos[0]:pos[0]+pos[2]]
-            # cv2.imshow(str(x*y), imgCrop)
-            count = cv2.countNonZero(imgCrop)
-            cvzone.putTextRect(frame, str(count), (pos[0]+(pos[2]//2),pos[1]+(pos[3]//2)), scale = 1, thickness = 1, offset = 0)
 
             # if less than 250 free -> color green else color red
-            if count < self.__pixel_min:
+            if pos[4] == 0:
                 color = (0,255,0)
                 thickness = 4
 
                 # a lock might be needed for this
-                self.__freeSpaces += 1
+                freeSpaces += 1
             else:
                 color = (0,0,255)
                 thickness = 2
             cv2.rectangle(frame, (pos[0], pos[1]), (pos[0] + pos[2], pos[1] + pos[3]), color, thickness)
+        self.__freeSpaces = freeSpaces
+
+    def __relevantOccupiedPositions(self, occupiedPositions, parkingPositionList):
+        for pos in occupiedPositions:
+            x, y, w, h, o = pos[0], pos[1], pos[2], pos[3], pos[4]
+            self.__addPotentialParkingPositions(x, y, w, h, o, parkingPositionList)
+
+
+    def __addPotentialParkingPositions(self, x, y, w, h, o, parkingPositionList):
+        # check if car is in area of parking, if tes add area to parkingPositions
+        # check if point ipo*96852
+        # *nside area
+        for coord in self.__parkingAreas:
+            poly = Polygon(coord)
+            p1 = Point(x, y)
+            p2 = Point(x + w, y)
+            p3 = Point(x, y + h)
+            p4 = Point(x + w, y + h)
+            if p1.within(poly) and p2.within(poly) and p3.within(poly) and p4.within(poly):
+                parkingPositionList.append([x, y, w, h, o])
 
 
     def __checkParkingSpace(self, imgPro, frame, poslist):
-        self.__freeSpaces = 0
         # create modified posList
         # choose spaces that are occupied
         parkingPositionList = []
@@ -129,26 +148,21 @@ class Model:
         # sort by pixel count index
         countpixelsList = sorted(countpixelsList, key=lambda x: (-x[4], x[5]))
 
+        # get all occupied positions by cars using yolov5
+        occupied = self.__model(imgPro)
+        self.__getOccupiedPositions(occupied, occupiedPositions)
 
-        # ****************************************Delete*************************************************************
-        # # add relevant positions
-        # self.__relevantPositions(countpixelsList, occupiedPositions, freeParkingPostiions)
-        # # run dynamic programming algorithm to choose max occupied parkings
-        # dp_occ = [[-1, None]] * len(occupiedPositions)
-        # numOfoccupiedSpaces, occupiedSpacePositions = self.__optimalFreePositions(0, occupiedPositions, [], dp_occ)
-        # for pos in occupiedSpacePositions:
-        #     parkingPositionList.append(pos)
-        # ****************************************Delete*************************************************************
+        self.__relevantOccupiedPositions(occupiedPositions, parkingPositionList)
 
-        # choose occupied positions from yolov5 model
+        # check all countpixelsList if intersecting with occupied - if not add to freeParkingPostiions
+        self.__relevantFreePositions(countpixelsList, parkingPositionList, freeParkingPostiions)
+
         # choose the not intersecting (with occupied positions from yolov5 model) free parking positions
-        # from pixelCountArea
-
         # run dynamic programming algorithm to choose max free parkings
         dp_free = [[-1, None]] * len(freeParkingPostiions)
         numOfFreeSpaces, freeSpacePositions = self.__optimalFreePositions(0, freeParkingPostiions, [], dp_free)
         for pos in freeSpacePositions:
-            parkingPositionList.append(pos)
+            parkingPositionList.append((pos[0], pos[1], pos[2], pos[3], 0))
 
         # a lock might be needed for this
         self.__totalSpaces = len(parkingPositionList)
@@ -167,39 +181,13 @@ class Model:
         return self.__lock_posList
 
 
-    # brighten the img. Was taken from:
-    # https://stackoverflow.com/questions/44752240/how-to-remove-shadow-from-scanned-images-using-opencv
-    def __no_shadows(self, img):
-        rgb_planes = cv2.split(img)
-
-        result_planes = []
-        result_norm_planes = []
-        for plane in rgb_planes:
-            dilated_img = cv2.dilate(plane, np.ones((7, 7), np.uint8))
-            bg_img = cv2.medianBlur(dilated_img, 21)
-            diff_img = 255 - cv2.absdiff(plane, bg_img)
-            norm_img = cv2.normalize(diff_img, None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_8UC1)
-            result_planes.append(diff_img)
-            result_norm_planes.append(norm_img)
-        result_norm = cv2.merge(result_norm_planes)
-
-        return result_norm
-
-
     def __proccess_frame(self, frame, poslist):
 
-        no_shadow = self.__no_shadows(frame)
-
         # process img for testing in parking model
-        imgGray = cv2.cvtColor(no_shadow, cv2.COLOR_BGR2GRAY)
-        imgBlur = cv2.GaussianBlur(imgGray, (25, 25), 1)
-        kernel = np.ones((3, 3), np.uint8)
-        imgDilate = cv2.dilate(imgBlur, kernel, iterations=1)
-        imgThreshold = cv2.adaptiveThreshold(imgDilate, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 21, 16)
+        imgGray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        imgBlur = cv2.GaussianBlur(imgGray, (51, 51), 1)
 
-        cv2.imshow("imgThreshold", imgThreshold)
-
-        self.__checkParkingSpace(imgThreshold, frame, poslist)
+        self.__checkParkingSpace(imgBlur, frame, poslist)
 
 
     def stream(self):
@@ -225,8 +213,7 @@ class Model:
                     self.__outputFrame = frame.copy()
 
 
-            cv2.imshow("Video", frame)
-            # cv2.imshow("imgThreshold", imgDilate)
+            # cv2.imshow("Video", frame)
 
             k = cv2.waitKey(1)
             if k == ord('q'):
