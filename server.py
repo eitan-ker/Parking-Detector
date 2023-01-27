@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, Response
+from flask import Flask, render_template, request, Response, jsonify
 import parking_model
 import parkingPositionsDetector
 import threading
@@ -8,9 +8,12 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
 
+
 @app.route("/")
 def index():
-    return render_template('/HTML/index.html')
+    totalSpaces = model.getTotalSpaces()
+    freeSpaces = model.getFreeSpaces()
+    return render_template('/HTML/index.html',  total_spaces=totalSpaces, free_spaces=freeSpaces)
 
 @app.route("/video_feed")
 def video_feed():
@@ -23,7 +26,7 @@ def video_feed():
 def info():
     freeSpaces = model.getFreeSpaces()
     totalSpaces = model.getTotalSpaces()
-    return render_template('/HTML/info.html', freeSpaces=freeSpaces, totalSpaces=totalSpaces)
+    return jsonify(totalSpaces_value=totalSpaces, freeSpaces_value=freeSpaces)
 
 if __name__ == "__main__":
     stream = 'resultvideo2011DONE.avi'
@@ -35,6 +38,7 @@ if __name__ == "__main__":
     t1 = threading.Thread(target=model.stream)
     t1.daemon = True
     t1.start()
+
     lock_posList = model.getLockPosList()
     detector = parkingPositionsDetector.Detector(stream, parkingPositionsPath, parkingAreaPath, lock_posList)
     t2 = threading.Thread(target=detector.detectionAlgorithm)

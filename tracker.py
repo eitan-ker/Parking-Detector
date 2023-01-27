@@ -9,18 +9,18 @@ import math
 
 class Tracker:
     def __init__(self):
-        self.center_points = {}  # id:(x,y)
-        self.positions = {}  # id:[(x1,y1,w1,h1), (x2,y2,w2,h2)....]
-        self.notMoving = {}  # id:(noMoveIterationCounter)
-        self.optimalParkingPosition = {}  # id:[(x1,y1,w1,h1),(x2,y2,w2,h2)]
-        self.id_count = 0
+        self.__center_points = {}  # id:(x,y)
+        self.__positions = {}  # id:[(x1,y1,w1,h1), (x2,y2,w2,h2)....]
+        self.__notMoving = {}  # id:(noMoveIterationCounter)
+        self.__optimalParkingPosition = {}  # id:[(x1,y1,w1,h1),(x2,y2,w2,h2)]
+        self.__id_count = 0
         # this will deal with unwanted partings caused by shadows for example
         # id:legit - if id detected += 1, if detected > 2 then assign values in detected
 
     # will save the largest parking in the first half and second half.
     # this is order to deal with getting out / getting in parking situations.
-    def findOptimalParkingPosition(self, obj_id):
-        positions = self.positions[obj_id]
+    def __findOptimalParkingPosition(self, obj_id):
+        positions = self.__positions[obj_id]
         centerIndex = len(positions)//2
         # first half
         relevantPositions = positions[:centerIndex]
@@ -30,7 +30,7 @@ class Tracker:
             if area > optimalParkingPosition[0]:
                 optimalParkingPosition[0] = area
                 optimalParkingPosition[1] = pos
-        self.optimalParkingPosition[obj_id].append(optimalParkingPosition[1])
+        self.__optimalParkingPosition[obj_id].append(optimalParkingPosition[1])
         # second hald
         relevantPositions = positions[centerIndex:]
         optimalParkingPosition = [0, None]
@@ -39,13 +39,13 @@ class Tracker:
             if area > optimalParkingPosition[0]:
                 optimalParkingPosition[0] = area
                 optimalParkingPosition[1] = pos
-        self.optimalParkingPosition[obj_id].append(optimalParkingPosition[1])
+        self.__optimalParkingPosition[obj_id].append(optimalParkingPosition[1])
 
 
-    def assignValues(self, obj_id, x, y, w, h, cx, cy, ids_detected):
-        self.center_points[obj_id] = (cx, cy)
-        self.positions[obj_id].append([x, y, w, h])
-        self.notMoving[obj_id] = 0
+    def __assignValues(self, obj_id, x, y, w, h, cx, cy, ids_detected):
+        self.__center_points[obj_id] = (cx, cy)
+        self.__positions[obj_id].append([x, y, w, h])
+        self.__notMoving[obj_id] = 0
         # new car with no id that has been detected
         ids_detected.append(obj_id)
 
@@ -60,35 +60,35 @@ class Tracker:
 
             # Find out if that object was detected already
             same_object_detected = False
-            for id, pt in self.center_points.items():
+            for id, pt in self.__center_points.items():
                 dist = math.hypot(cx - pt[0], cy - pt[1])
 
                 # same object detected
                 if dist < 50:
-                    self.assignValues(id, x, y, w, h, cx, cy, ids_detected)
+                    self.__assignValues(id, x, y, w, h, cx, cy, ids_detected)
                     same_object_detected = True
                     break
 
             # New object is detected we init all attributes
             if same_object_detected is False:
-                self.positions[self.id_count] = []  # init this as list
-                self.optimalParkingPosition[self.id_count] = []
-                self.assignValues(self.id_count, x, y, w, h, cx, cy, ids_detected)
-                self.id_count += 1
+                self.__positions[self.__id_count] = []  # init this as list
+                self.__optimalParkingPosition[self.__id_count] = []
+                self.__assignValues(self.__id_count, x, y, w, h, cx, cy, ids_detected)
+                self.__id_count += 1
 
         # count number of iterations car hasn't been moving
-        for id, pt in self.notMoving.items():
+        for id, pt in self.__notMoving.items():
             if id not in ids_detected:
-                self.notMoving[id] = pt + 1
+                self.__notMoving[id] = pt + 1
             # X = 10, check if car hasn't been moving for X iterations and create optimalParking Position
-            if self.notMoving[id] == 10:
-                self.findOptimalParkingPosition(id)
+            if self.__notMoving[id] == 10:
+                self.__findOptimalParkingPosition(id)
 
     def getOptimalParkingPositions(self):
-        if len(self.optimalParkingPosition) == 0:
+        if len(self.__optimalParkingPosition) == 0:
             return []
         optimalParkingPosition = []
-        tempOptimalParkingPosition = self.optimalParkingPosition.copy()
+        tempOptimalParkingPosition = self.__optimalParkingPosition.copy()
         for id, pt in tempOptimalParkingPosition.items():
             if len(pt) == 0:
                 continue
@@ -98,8 +98,8 @@ class Tracker:
             # optimalParkingPosition.append(pt[0])
             # optimalParkingPosition.append(pt[1])
             # once added the optimalParkingPosition, delete the ID obj from all attributes
-            self.center_points.pop(id)
-            self.positions.pop(id)
-            self.notMoving.pop(id)
-            self.optimalParkingPosition.pop(id)
+            self.__center_points.pop(id)
+            self.__positions.pop(id)
+            self.__notMoving.pop(id)
+            self.__optimalParkingPosition.pop(id)
         return optimalParkingPosition

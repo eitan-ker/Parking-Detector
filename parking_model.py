@@ -92,7 +92,10 @@ class Model:
             y1 = int(row['ymin'])
             xn = int(row['xmax'])
             yn = int(row['ymax'])
-            occupiedPositions.append((x1, y1, xn-x1, yn-y1, 1))
+            name = str(row['name'])
+            if 'car' in name or 'truck' in name:
+
+                occupiedPositions.append((x1, y1, xn-x1, yn-y1, 1))
 
 
     def __markFrames(self, parkingPositionList, imgPro, frame):
@@ -131,7 +134,8 @@ class Model:
             p2 = Point(x + w, y)
             p3 = Point(x, y + h)
             p4 = Point(x + w, y + h)
-            if p1.within(poly) and p2.within(poly) and p3.within(poly) and p4.within(poly):
+            if p1.within(poly) and p2.within(poly) and p3.within(poly) and p4.within(poly) and \
+                    [x, y, w, h, o] not in parkingPositionList:
                 parkingPositionList.append([x, y, w, h, o])
 
 

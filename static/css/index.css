@@ -12,6 +12,7 @@ body {
 h3 {
     text-decoration: underline;
     margin:0px
+    margin-bottom: 10px;
 
 }
 
@@ -31,11 +32,12 @@ h3 {
 
 .info_col {
     border: 2px solid white;
-
     margin-right:5%;
     height: 80px;
     width:30%;
     float: right;
+    height: auto;
+
 }
 
 

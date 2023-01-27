@@ -166,10 +166,10 @@ class Detector:
                 with open('parkingPositions', 'wb') as f:
                     pickle.dump(self.__parkingPositions, f)
 
-            # cv2.imshow("marked", view_frame)
-            # cv2.imshow("imgDilate", imgDilate)
+            cv2.imshow("marked", view_frame)
+            cv2.imshow("imgDilate", imgDilate)
             #
-            # cv2.setMouseCallback("marked", self.__deleteByClick)
+            cv2.setMouseCallback("marked", self.__deleteByClick)
 
             key = cv2.waitKey(1)
             if key == ord('p'):

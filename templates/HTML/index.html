@@ -2,23 +2,23 @@
   <head>
     <title>Parking Surveillance</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+    <script src="{{url_for('static', filename='js/info.js')}}"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1">
   </head>
   <body>
-
     <h1>Parking Surveillance</h1>
     <div class="row">
       <div class="column video_col">
         <img class="video" src="{{ url_for('video_feed') }}">
       </div>
       <div class="column info_col">
-
-        <h3>Free Spaces Available</h3>
-        <iframe src="{{ url_for('info') }}" style="border: none;"></iframe>
+        <div>
+          <h3>Total Spaces: <div id="total_spaces">{{ total_spaces }}</div></h3>
+        </div>
+        <div>
+          <h3>Free Spaces Available: <div id="free_spaces">{{ free_spaces }}</div></h3>
+        </div>
       </div>
     </div>
-
-
-
   </body>
 </html>
