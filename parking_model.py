@@ -7,7 +7,7 @@ import pandas
 
 
 class Model:
-    def __init__(self, stream, parkingPositionsPath, parkingAreaPath, weights):
+    def __init__(self, stream, collection_parking_positions, collection_parking_areas, weights):
         self.__model = torch.hub.load('ultralytics/yolov5', weights, pretrained=True)
         self.__outputFrame = None
         self.__lock = threading.Lock()
@@ -17,17 +17,25 @@ class Model:
         self.__pixel_min = 80
         self.__cap = cv2.VideoCapture(stream)
         # lock
-        with self.__lock_posList:
-            try:
-                with open(parkingPositionsPath, 'rb') as f:
-                    self.__poslist = pickle.load(f)
-            except:
-                self.__poslist = []
-        try:
-            with open(parkingAreaPath, 'rb') as f:
-                self.__parkingAreas = pickle.load(f)
-        except:
-            self.__parkingAreas = []
+        self.__poslist = []
+        parkings_positions = collection_parking_positions.find({})
+        for i in parkings_positions:
+            a,b,c,d = i['left_up'], i['right_up'], i['right_down'], i['left_down']
+            self.__poslist.append([a,b,c,d])
+
+        z=2
+
+        # with self.__lock_posList:
+        #     try:
+        #         with open(parkingPositionsPath, 'rb') as f:
+        #             self.__poslist = pickle.load(f)
+        #     except:
+        #         self.__poslist = []
+        # try:
+        #     with open(parkingAreaPath, 'rb') as f:
+        #         self.__parkingAreas = pickle.load(f)
+        # except:
+        #     self.__parkingAreas = []
 
 
     def __intersecting(self, position, positionList):

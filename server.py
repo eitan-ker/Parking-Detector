@@ -45,7 +45,7 @@ if __name__ == "__main__":
     collection_parking_areas = db['parking_areas']
     collection_parking_positions = db['parking_positions']
 
-    model = parking_model.Model(stream, parkingPositionsPath, parkingAreaPath, weights)
+    model = parking_model.Model(stream, collection_parking_positions, collection_parking_areas, weights)
     t1 = threading.Thread(target=model.stream)
     t1.daemon = True
     t1.start()
