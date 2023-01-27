@@ -3,6 +3,8 @@ import parking_model
 import parkingPositionsDetector
 import threading
 from flask_cors import CORS
+import pymongo
+from pymongo import MongoClient
 
 
 app = Flask(__name__)
@@ -29,11 +31,20 @@ def info():
     return jsonify(totalSpaces_value=totalSpaces, freeSpaces_value=freeSpaces)
 
 if __name__ == "__main__":
+
     stream = 'resultvideo2011DONE.avi'
     # stream = 'http://eitancamhome:eitancamhome@10.100.102.10:6677/video'
+
     parkingPositionsPath = 'parkingPositionsFinal_badParkingArea'
     parkingAreaPath = 'parkingAreasPos_badParkingArea'
+
     weights = 'yolov5s'
+
+    cluster = MongoClient('mongodb://localhost:27017')
+    db = cluster['Parking_Finder']
+    collection_parking_areas = db['parking_areas']
+    collection_parking_positions = db['parking_positions']
+
     model = parking_model.Model(stream, parkingPositionsPath, parkingAreaPath, weights)
     t1 = threading.Thread(target=model.stream)
     t1.daemon = True

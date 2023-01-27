@@ -156,20 +156,35 @@ class Detector:
             self.__tracker.update(potentialParkingPositions)
             # get optimal parking positions, objects will be deleted
             newParkingPositions = self.__tracker.getOptimalParkingPositions()
+
+
+
+
+            # ******************************************************************
+            # check if there are new parking positions, if yes add them to mongo
+            # ******************************************************************
+            # then add to parking positions
+
             # append to parkingPositions
             if len(newParkingPositions) > 0:
                 for pos in newParkingPositions:
                     self.__parkingPositions.append(pos)
-
             # lock
             with self.__lock_posList:
                 with open('parkingPositions', 'wb') as f:
                     pickle.dump(self.__parkingPositions, f)
 
-            cv2.imshow("marked", view_frame)
-            cv2.imshow("imgDilate", imgDilate)
-            #
-            cv2.setMouseCallback("marked", self.__deleteByClick)
+            # ******************************************************************
+            # check if there are new parking positions, if yes add them to mongo
+            # ******************************************************************
+
+
+
+
+            # cv2.imshow("marked", view_frame)
+            # cv2.imshow("imgDilate", imgDilate)
+            # #
+            # cv2.setMouseCallback("marked", self.__deleteByClick)
 
             key = cv2.waitKey(1)
             if key == ord('p'):

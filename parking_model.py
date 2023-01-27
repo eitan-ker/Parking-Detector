@@ -198,19 +198,17 @@ class Model:
         # imgDilate = None
 
         while True:
-            # read posList from parkingPositions with lock
-            with self.__lock_posList:
-                try:
-                    with open('parkingPositions', 'rb') as f:
-                        poslist = pickle.load(f)
-                except:
-                    poslist = []
-
-            if self.__cap.get(cv2.CAP_PROP_POS_FRAMES) == self.__cap.get(cv2.CAP_PROP_FRAME_COUNT):
-                self.__cap.set(cv2.CAP_PROP_POS_FRAMES,0)
-
             success, frame = self.__cap.read()
+
             if success:
+                # read posList from parkingPositions with lock
+                with self.__lock_posList:
+                    try:
+                        with open('parkingPositions', 'rb') as f:
+                            poslist = pickle.load(f)
+                    except:
+                        poslist = []
+
                 self.__proccess_frame(frame, poslist)
                 # frame = cv2.resize(frame, (1500, 850))
                 with self.__lock:
