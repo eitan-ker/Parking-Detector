@@ -7,35 +7,17 @@ import pandas
 
 
 class Model:
-    def __init__(self, stream, collection_parking_positions, collection_parking_areas, weights):
+    def __init__(self, stream, db, weights):
         self.__model = torch.hub.load('ultralytics/yolov5', weights, pretrained=True)
         self.__outputFrame = None
         self.__lock = threading.Lock()
-        self.__lock_posList = threading.Lock()
         self.__freeSpaces = 0
         self.__totalSpaces = 0
         self.__pixel_min = 80
         self.__cap = cv2.VideoCapture(stream)
-        # lock
-        self.__poslist = []
-        parkings_positions = collection_parking_positions.find({})
-        for i in parkings_positions:
-            a,b,c,d = i['left_up'], i['right_up'], i['right_down'], i['left_down']
-            self.__poslist.append([a,b,c,d])
-
-        z=2
-
-        # with self.__lock_posList:
-        #     try:
-        #         with open(parkingPositionsPath, 'rb') as f:
-        #             self.__poslist = pickle.load(f)
-        #     except:
-        #         self.__poslist = []
-        # try:
-        #     with open(parkingAreaPath, 'rb') as f:
-        #         self.__parkingAreas = pickle.load(f)
-        # except:
-        #     self.__parkingAreas = []
+        self.__db = db
+        self.__parkingAreas = self.__db.getParkingArea()
+        self.__poslist = self.__db.getParkingPositions()
 
 
     def __intersecting(self, position, positionList):
@@ -74,13 +56,11 @@ class Model:
         if p1 > p2:
             dp[i] = [p1,k1]
         else:
-            # dp[i][0] = p2
-            # dp[i][1] = l2
             dp[i] = [p2,l2]
         return dp[i]
 
-    def __pixelCountArea(self, poslist, imgPro, countpixelsList):
-        for pos in poslist:
+    def __pixelCountArea(self, imgPro, countpixelsList):
+        for pos in self.__poslist:
             imgCrop = imgPro[pos[1]:pos[1] + pos[3], pos[0]:pos[0] + pos[2]]
             count = cv2.countNonZero(imgCrop)
             area = pos[2] * pos[3]
@@ -147,7 +127,7 @@ class Model:
                 parkingPositionList.append([x, y, w, h, o])
 
 
-    def __checkParkingSpace(self, imgPro, frame, poslist):
+    def __checkParkingSpace(self, imgPro, frame):
         # create modified posList
         # choose spaces that are occupied
         parkingPositionList = []
@@ -155,7 +135,7 @@ class Model:
         freeParkingPostiions = []
         countpixelsList = []
         # add pixel count to positions
-        self.__pixelCountArea(poslist, imgPro, countpixelsList)
+        self.__pixelCountArea(imgPro, countpixelsList)
 
         # sort by pixel count index
         countpixelsList = sorted(countpixelsList, key=lambda x: (-x[4], x[5]))
@@ -189,17 +169,14 @@ class Model:
     def getTotalSpaces(self):
         return self.__totalSpaces
 
-    def getLockPosList(self):
-        return self.__lock_posList
 
-
-    def __proccess_frame(self, frame, poslist):
+    def __proccess_frame(self, frame):
 
         # process img for testing in parking model
         imgGray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         imgBlur = cv2.GaussianBlur(imgGray, (51, 51), 1)
 
-        self.__checkParkingSpace(imgBlur, frame, poslist)
+        self.__checkParkingSpace(imgBlur, frame)
 
 
     def stream(self):
@@ -209,19 +186,11 @@ class Model:
             success, frame = self.__cap.read()
 
             if success:
-                # read posList from parkingPositions with lock
-                with self.__lock_posList:
-                    try:
-                        with open('parkingPositions', 'rb') as f:
-                            poslist = pickle.load(f)
-                    except:
-                        poslist = []
-
-                self.__proccess_frame(frame, poslist)
+                self.__poslist = self.__db.getParkingPositions()
+                self.__proccess_frame(frame)
                 # frame = cv2.resize(frame, (1500, 850))
                 with self.__lock:
                     self.__outputFrame = frame.copy()
-
 
             # cv2.imshow("Video", frame)
 

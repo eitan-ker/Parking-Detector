@@ -1,10 +1,15 @@
 from flask import Flask, render_template, request, Response, jsonify
 import parking_model
 import parkingPositionsDetector
+import dbHandler
 import threading
 from flask_cors import CORS
 import pymongo
 from pymongo import MongoClient
+
+import cProfile
+import time
+
 
 
 app = Flask(__name__)
@@ -30,30 +35,27 @@ def info():
     totalSpaces = model.getTotalSpaces()
     return jsonify(totalSpaces_value=totalSpaces, freeSpaces_value=freeSpaces)
 
+
+
 if __name__ == "__main__":
 
     stream = 'resultvideo2011DONE.avi'
     # stream = 'http://eitancamhome:eitancamhome@10.100.102.10:6677/video'
 
-    parkingPositionsPath = 'parkingPositionsFinal_badParkingArea'
-    parkingAreaPath = 'parkingAreasPos_badParkingArea'
+    db = dbHandler.DbHandler()
 
     weights = 'yolov5s'
 
-    cluster = MongoClient('mongodb://localhost:27017')
-    db = cluster['Parking_Finder']
-    collection_parking_areas = db['parking_areas']
-    collection_parking_positions = db['parking_positions']
-
-    model = parking_model.Model(stream, collection_parking_positions, collection_parking_areas, weights)
+    model = parking_model.Model(stream, db, weights)
     t1 = threading.Thread(target=model.stream)
     t1.daemon = True
     t1.start()
 
-    lock_posList = model.getLockPosList()
-    detector = parkingPositionsDetector.Detector(stream, parkingPositionsPath, parkingAreaPath, lock_posList)
+    detector = parkingPositionsDetector.Detector(stream, db)
     t2 = threading.Thread(target=detector.detectionAlgorithm)
     t2.daemon = True
     t2.start()
 
     app.run(host="0.0.0.0", port=5000, debug=True, threaded=True, use_reloader=False)
+
+

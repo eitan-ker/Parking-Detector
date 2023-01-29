@@ -1,31 +1,19 @@
 import cv2
 import numpy as np
-import pickle
 from shapely.geometry import Point, Polygon
 from tracker import *
 
 
 class Detector:
-    def __init__(self, stream, parkingPositionsPath, parkingAreaPath, lock_posList):
+    def __init__(self, stream, db):
         self.__cap = cv2.VideoCapture(stream)
         self.__parkingArea = []
         self.__object_detector = cv2.createBackgroundSubtractorKNN()
         self.__tracker = Tracker()
-        self.__lock_posList = lock_posList
-        try:
-            with open(parkingAreaPath, 'rb') as f:
-                self.__parkingAreas = pickle.load(f)
-        except:
-            self.__parkingAreas = []
-
-        # lock
-        with self.__lock_posList:
-            try:
-                with open(parkingPositionsPath, 'rb') as f:
-                    self.__parkingPositions = pickle.load(f)
-            except:
-                self.__parkingPositions = []
-
+        # self.__lock_posList = lock_posList
+        self.__db = db
+        self.__parkingAreas = self.__db.getParkingArea()
+        self.__parkingPositions = self.__db.getParkingPositions()
 
 
     # *****************************
@@ -59,8 +47,8 @@ class Detector:
         # rearrangeParkingAreaPoint(parkingArea)
 
         self.__parkingAreas.append(self.__parkingArea)
-        with open('parkingAreasPos', 'wb') as f:
-            pickle.dump(self.__parkingAreas, f)
+        self.__db.addParkingArea(self.__parkingArea[0], self.__parkingArea[1], self.__parkingArea[2],
+                                 self.__parkingArea[3])
         self.__parkingArea = []
 
 
@@ -75,9 +63,8 @@ class Detector:
                 point = Point(x, y)
                 if point.within(polyg):
                     self.__parkingAreas.pop(i)
-                    # save parking areas after deleting
-                    with open('parkingAreasPos', 'wb') as f:
-                        pickle.dump(self.__parkingAreas, f)
+                    self.__db.deleteParkingArea(pos[0], pos[1], pos[2], pos[3])
+
         if events == cv2.EVENT_LBUTTONDOWN:
             # check if click is in a parking area - delete it
             for i, pos in enumerate(self.__parkingPositions):
@@ -86,6 +73,7 @@ class Detector:
                 point = Point(x, y)
                 if point.within(polyg):
                     self.__parkingPositions.pop(i)
+                    self.__db.deleteParkingPosition(pos[0], pos[1], pos[2], pos[3])
 
 
     # ****************************
@@ -157,33 +145,15 @@ class Detector:
             # get optimal parking positions, objects will be deleted
             newParkingPositions = self.__tracker.getOptimalParkingPositions()
 
-
-
-
-            # ******************************************************************
-            # check if there are new parking positions, if yes add them to mongo
-            # ******************************************************************
-            # then add to parking positions
-
-            # append to parkingPositions
             if len(newParkingPositions) > 0:
                 for pos in newParkingPositions:
-                    self.__parkingPositions.append(pos)
-            # lock
-            with self.__lock_posList:
-                with open('parkingPositions', 'wb') as f:
-                    pickle.dump(self.__parkingPositions, f)
-
-            # ******************************************************************
-            # check if there are new parking positions, if yes add them to mongo
-            # ******************************************************************
-
-
-
+                    if pos not in self.__parkingPositions:
+                        self.__parkingPositions.append(pos)
+                        self.__db.addParkingPosition(pos[0], pos[1], pos[2], pos[3])
 
             # cv2.imshow("marked", view_frame)
-            # cv2.imshow("imgDilate", imgDilate)
-            # #
+            # # # cv2.imshow("imgDilate", imgDilate)
+            # # # #
             # cv2.setMouseCallback("marked", self.__deleteByClick)
 
             key = cv2.waitKey(1)
