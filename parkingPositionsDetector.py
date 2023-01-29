@@ -10,7 +10,6 @@ class Detector:
         self.__parkingArea = []
         self.__object_detector = cv2.createBackgroundSubtractorKNN()
         self.__tracker = Tracker()
-        # self.__lock_posList = lock_posList
         self.__db = db
         self.__parkingAreas = self.__db.getParkingArea()
         self.__parkingPositions = self.__db.getParkingPositions()
