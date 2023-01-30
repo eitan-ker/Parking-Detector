@@ -36,7 +36,6 @@ It sets up four routes for the web application:
 
 '/' returns the video feed in the default route.
 
-It starts the Flask application on the host IP address 0.0.0.0 on port 5000 with the option to turn on debugging and sets the threaded and use_reloader options to True and False, respectively.
 
 ### Parking Model
 
