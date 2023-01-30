@@ -56,4 +56,4 @@ The Tracker class is used for tracking objects in a parking area and minimizing 
 
 ### DbHandler
 
-This code is a Python class that handles communication with a MongoDB database. It contains a number of methods for adding, retrieving and deleting parking areas and parking positions from the database. The class makes use of the PyMongo library to interact with the MongoDB database, which is assumed to be running on the local machine on port 27017.
+This code is a Python class that handles communication with a MongoDB database. It contains a number of methods for adding, retrieving and deleting parking areas and parking positions from the database. The class makes use of the PyMongo library to interact with the MongoDB database, which is running on the local machine.
