@@ -2,7 +2,9 @@
 
 ## Project Description
 
-Parking Detector is a computer vision application built with Python that detects available parking spots and keeps track of occupied spots in real-time. It is used for solving the problem of finding available parking spots in busy areas. The application utilizes computer vision techniques to detect and track occupied parking spots in real-time, allowing drivers to quickly find available spots. The application also provides a web interface built with Flask, which displays the parking spot availability information. The information is stored in a MongoDB database, making it easy to retrieve and manipulate. The application utilizes threading and multiprocessing to optimize performance, ensuring that the application runs smoothly even with a high volume of data. The application also establishes an HTTP connection to an IP camera for obtaining real-time video feeds, providing an up-to-date view of the parking lot.
+Parking Detector is a computer vision application built with Python that detects available parking spots and keeps track of occupied spots in real-time. It is used for solving the problem of finding available parking spots in busy areas. 
+The application utilizes computer vision techniques to detect and track occupied parking spots in real-time, allowing drivers to quickly find available spots. The application also provides a web interface built with Flask, which displays the parking spot availability information. The information is stored in a MongoDB database, making it easy to retrieve and manipulate. 
+The application utilizes threading and multiprocessing to optimize performance, ensuring that the application runs smoothly even with a high volume of data. The application also establishes an HTTP connection to an IP camera for obtaining real-time video feeds, providing an up-to-date view of the parking lot.
 
 ## Key Features
 
