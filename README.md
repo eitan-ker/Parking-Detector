@@ -22,6 +22,8 @@ The application utilizes **threading and multiprocessing** to optimize performan
 
 ## Classes
 
+**All classes are designed following OOP principles like Encapsulation and Abstraction.**
+
 ### Server
 
 This is a **python** script for a **Flask** web application that provides a parking lot monitoring system. The main functionality of this script is as follows:
