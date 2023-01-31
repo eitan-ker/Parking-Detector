@@ -43,11 +43,11 @@ It sets up four routes for the web application:
 
 ### Parking Model
 
-This Class is an implementation of a parking lot monitoring system using the YOLOv5 object detection model. The YOLOv5 model is loaded using PyTorch Hub and the video feed is obtained from a given stream. A database class is used to retrieve the parking areas and positions from a database.
+This Class is an implementation of a parking lot monitoring system with the help of YOLOv5 object detection model. The YOLOv5 model is loaded using PyTorch Hub and the video feed is obtained from a given stream. A database class is used to retrieve the parking areas and positions from a database.
 
-The class has several methods to process the video frames. One method extracts the relevant information from the video frame using the YOLOv5 model, another method marks the occupied and free parking spaces in the video frame, another method calculates the number of occupied and free parking spaces in the parking lot.
+The class has several methods to process the video frames. One method extracts occupied positions from the video frame using the YOLOv5 model, another method marks the occupied and free parking spaces in the video frame, another method calculates the number of occupied and free parking spaces in the parking lot.
 
-The code also implements an optimized version of the maximum independent set problem to determine the maximum number of non-intersecting parking spaces in the parking lot. The solution is obtained using dynamic programming.
+The code also implements an optimized version of the maximum independent set problem to determine the maximum number of non-intersecting parking spaces in the parking lot for selecting free parking spaces. The solution is obtained using dynamic programming.
 
 ### Parking Position Detector
 
