@@ -24,7 +24,7 @@ The application utilizes **threading and multiprocessing** to optimize performan
 
 ### Server
 
-This is a python script for a Flask web application that provides a parking lot monitoring system. The main functionality of this script is as follows:
+This is a **python** script for a **Flask** web application that provides a parking lot monitoring system. The main functionality of this script is as follows:
 
 It creates an instance of the parking_model class and starts a new thread for the stream method, which generates a video stream of the parking lot and updates the free and total spaces information.
 
@@ -43,20 +43,22 @@ It sets up four routes for the web application:
 
 ### Parking Model
 
-This Class is an implementation of a parking lot monitoring system with the help of YOLOv5 object detection model. The YOLOv5 model is loaded using PyTorch Hub and the video feed is obtained from a given stream. A database class is used to retrieve the parking areas and positions from a database.
+This Class is an implementation of a parking lot monitoring system with the help of **YOLOv5** object detection model. The **YOLOv5** model is loaded using PyTorch Hub and the video feed is obtained from a given stream. A **database** class is used to retrieve the parking areas and positions from a database.
 
-The class has several methods to process the video frames. One method extracts occupied positions from the video frame using the YOLOv5 model, another method marks the occupied and free parking spaces in the video frame, another method calculates the number of occupied and free parking spaces in the parking lot.
+The class has several methods to process the video frames. One method extracts occupied positions from the video frame using the **YOLOv5** model, another method marks the occupied and free parking spaces in the video frame, another method calculates the number of occupied and free parking spaces in the parking lot.
 
-The code also implements an optimized version of the maximum independent set problem to determine the maximum number of non-intersecting parking spaces in the parking lot for selecting free parking spaces. The solution is obtained using dynamic programming.
+The code also implements an **optimized version of the maximum independent set problem** to determine the maximum number of non-intersecting parking spaces in the parking lot for selecting free parking spaces. The solution is obtained using **dynamic programming**.
 
 ### Parking Position Detector
 
-The "Detector" class is for detecting and tracking objects (presumably vehicles) in a video stream. It uses the OpenCV library to process the video stream and a background subtractor (Tracker Class) to detect changes in the video frame. The class also keeps track of parking areas and parking positions, which are stored in a database. Parking areas are defined by marking 4 points in the video stream, and parking positions are defined as vehicles that are detected within the parking areas. The class has functions for marking and deleting parking areas, as well as for adding and deleting parking positions. The class also has functions for drawing parking areas and potential parking positions on the video stream.
+The "Detector" class is for detecting and tracking objects (presumably vehicles) in a video stream. It uses the **OpenCV** library to process the video stream and a background subtractor to **detect changes** in the video frame. The class also keeps track of parking areas and parking positions, which are stored in a database. Parking areas are defined by marking 4 points in the video stream, and parking positions are defined as vehicles that are detected within the parking areas. 
+
+The class has functions for marking and deleting parking areas, as well as for adding and deleting parking positions. The class also has functions for drawing parking areas and potential parking positions on the video stream.
 
 ### Tracker
 
-The Tracker class is used for tracking objects in a parking area and minimizing the number of parking positions needed. The class tracks the cars in the parking area, saves the positions of each car, and returns the max area size parking position when the car stops moving.
+The Tracker class is used for tracking objects in a parking area and **minimizing the number of parking positions** needed. The class tracks the cars in the parking area, saves the positions of each car, and returns the max area size parking position when the car stops moving.
 
 ### DbHandler
 
-This code is a Python class that handles communication with a MongoDB database. It contains a number of methods for adding, retrieving and deleting parking areas and parking positions from the database. The class makes use of the PyMongo library to interact with the MongoDB database, which is running on the local machine.
+This class is responsible for handling communication with a MongoDB database. It contains a number of methods for adding, retrieving and deleting parking areas and parking positions from the database. The class makes use of the PyMongo library to interact with the MongoDB database, which is running on the local machine.
