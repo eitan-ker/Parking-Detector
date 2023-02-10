@@ -72,3 +72,7 @@ This class is responsible for handling communication with a MongoDB database. It
 
 
 ## Challanges
+
+Using Yolov5 for capturing occupied positions has not been perfect. We can easily spot occupied positions that are not captured by the model.
+
+<img width="530" alt="full1" src="https://user-images.githubusercontent.com/58944748/218128212-fb393097-bb5b-430c-abce-ce5e77851a5f.png">
