@@ -80,3 +80,8 @@ Using Yolov5 for capturing occupied positions has not been perfect. We can easil
 In the next example, you could see a green mark while there should be red mark. the green mark is a positions captured by "Parking Position Detector" class.
 
 <img width="265" alt="yolomiss1" src="https://user-images.githubusercontent.com/58944748/218128937-3348fe8e-0454-4772-bc33-97ff2e397575.png">
+
+Finally, in the next example you could see almost perfect detection. While there are two cars that are not detected by Yolov5, in general the detection works pretty well.
+
+<img width="530" alt="yolomiss2" src="https://user-images.githubusercontent.com/58944748/218129495-15cfbd82-3d6c-4313-891d-b7f801c480e6.png">
+
