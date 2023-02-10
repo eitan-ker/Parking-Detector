@@ -29,7 +29,7 @@ Using Yolov5 for capturing occupied positions has not been perfect. We can easil
 
 <img width="530" alt="full1" src="https://user-images.githubusercontent.com/58944748/218128212-fb393097-bb5b-430c-abce-ce5e77851a5f.png">
 
-In the next example, you could see a green mark while there should be red mark. the green mark is a positions captured by "Parking Position Detector" class.
+In the next example, you could see a green mark while there should be red mark. the green mark is a position captured by "Parking Position Detector" class.
 
 <img width="265" alt="yolomiss1" src="https://user-images.githubusercontent.com/58944748/218128937-3348fe8e-0454-4772-bc33-97ff2e397575.png">
 
