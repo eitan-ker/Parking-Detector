@@ -1,5 +1,7 @@
 # Parking Detector
 
+https://user-images.githubusercontent.com/58944748/218122215-9a391d71-5d0a-407b-af77-ef36e61278b0.mp4
+
 ## Project Description
 
 Parking Detector is a **computer vision** application built with **Python** that detects available parking spots and keeps track of occupied spots in real-time allowing drivers to quickly find available spots.
