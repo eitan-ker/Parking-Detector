@@ -21,6 +21,7 @@ The application utilizes **threading and multiprocessing** to optimize performan
 5. Threading and Multiprocessing
 6. Dynamic Programming
 7. HTTP connection to IP camera
+8. JavaScript, HTML, CSS frotend
 
 
 
