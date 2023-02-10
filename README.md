@@ -1,6 +1,7 @@
 # Parking Detector
 
-https://user-images.githubusercontent.com/58944748/218122215-9a391d71-5d0a-407b-af77-ef36e61278b0.mp4
+
+![example]([my_video.mov](https://user-images.githubusercontent.com/58944748/218122215-9a391d71-5d0a-407b-af77-ef36e61278b0.mp4))
 
 ## Project Description
 
