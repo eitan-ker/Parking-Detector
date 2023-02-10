@@ -1,7 +1,7 @@
 # Parking Detector
 
 
-https://user-images.githubusercontent.com/58944748/218125420-7bc0e7aa-3d9d-408d-a2f3-28e20e1c6253.mp4
+https://user-images.githubusercontent.com/58944748/218170065-250ba6be-759a-4d7e-aea8-12930ad92b1e.mp4
 
 
 ## Project Description
