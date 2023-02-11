@@ -44,7 +44,7 @@ We select the Parking Area
 
 <img width="536" alt="2" src="https://user-images.githubusercontent.com/58944748/218277730-0616bb78-1b63-443a-a17a-c5ec8736c48b.png">
 
-The Algorithm will detect when the cars enetrs the Parking Area, chooses the the most optimal Parking position and add it to the "parking_positions" collection
+The Algorithm will detect when a car enetrs the Parking Area, choose the the most optimal Parking position and add it to the "parking_positions" collection
 
 https://user-images.githubusercontent.com/58944748/218277975-711796f7-0708-4dce-a1bf-5b4bd51ae9ed.mp4
 
@@ -52,6 +52,8 @@ Lastly, it will look something like this
 
 <img width="533" alt="4" src="https://user-images.githubusercontent.com/58944748/218277882-8294c70a-d4f7-45eb-b01b-a81d570dd2af.png">
 
+
+**For more detailes on the Classes functionality, please look in the "Classes" section**
 
 
 ## Challanges
