@@ -46,7 +46,7 @@ We select the Parking Area
 
 The Algorithm will detect when the cars enetrs the Parking Area, chooses the the most optimal Parking position and add it to the "parking_positions" collection
 
-https://user-images.githubusercontent.com/58944748/218277828-5e2da71b-f405-4636-a4d6-02985ac35acd.mp4
+https://user-images.githubusercontent.com/58944748/218277975-711796f7-0708-4dce-a1bf-5b4bd51ae9ed.mp4
 
 Lastly, it will look something like this
 
