@@ -48,7 +48,7 @@ The Algorithm will detect when a car enetrs the Parking Area, choose the the mos
 
 https://user-images.githubusercontent.com/58944748/218277975-711796f7-0708-4dce-a1bf-5b4bd51ae9ed.mp4
 
-Lastly, it will look something like this
+Finally, it will look something like this
 
 <img width="533" alt="4" src="https://user-images.githubusercontent.com/58944748/218277882-8294c70a-d4f7-45eb-b01b-a81d570dd2af.png">
 
