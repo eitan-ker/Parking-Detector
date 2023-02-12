@@ -56,7 +56,7 @@ Finally, it will look something like this
 **For more detailes on the Classes functionality, please look in the "Classes" section**
 
 
-## Challanges
+## Challenges
 
 Using Yolov5 for capturing occupied positions has not been perfect. We can easily spot occupied positions that are not captured by the model.
 
