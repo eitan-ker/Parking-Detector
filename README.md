@@ -44,7 +44,7 @@ We select the Parking Area
 
 <img width="536" alt="2" src="https://user-images.githubusercontent.com/58944748/218277730-0616bb78-1b63-443a-a17a-c5ec8736c48b.png">
 
-The algorithm detects when a car enters the parking area and selects the most optimal parking position. It then adds this position to the "parking_positions" collection.
+The algorithm detects when a car enters the parking area and selects the most optimal parking position. It then adds this position to the "parking_positions" collection
 
 https://user-images.githubusercontent.com/58944748/218277975-711796f7-0708-4dce-a1bf-5b4bd51ae9ed.mp4
 
